@@ -4,165 +4,298 @@ A production-ready web platform for monitoring and managing maritime GHG emissio
 
 ## 🎯 Features
 
-- **Routes Management**: Track vessel routes with GHG intensity, fuel consumption, and emissions data
-- **Compliance Comparison**: Compare actual emissions against FuelEU targets (2025-2050)
-- **Banking System**: Bank surplus compliance balance for future use
-- **Pooling Arrangements**: Create multi-ship pooling with automatic validation
+- **JWT-Based Authentication**: Secure login and authorization using JSON Web Tokens (HTTP-only cookies)
+- **Routes Management**: Track vessel routes with GHG intensity, fuel consumption, and emissions data  
+- **Compliance Comparison**: Compare actual emissions against FuelEU targets (2025-2050)  
+- **Banking System**: Bank surplus compliance balance for future use  
+- **Pooling Arrangements**: Create multi-ship pooling with automatic validation  
 
 ## 🏗️ Architecture
 
-Built using **Hexagonal Architecture (Ports & Adapters)** for maximum testability and maintainability:
+Built using **Hexagonal Architecture (Ports & Adapters)** for maximum testability and maintainability.
 
-
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ and npm
-- PostgreSQL 14+
-- Git
+- Node.js 18+ and npm  
+- PostgreSQL 14+  
+- Git  
 
 ### Backend Setup
 
-Backend will run on `http://localhost:3000`
+Backend runs on `http://localhost:3000`
 
 ### Frontend Setup
 
-Frontend will run on `http://localhost:5173`
+Frontend runs on `http://localhost:5173`
+
+---
+
+# 🚀 Complete Setup and Run Instructions
+
+## 🧰 Prerequisites
+Before starting, ensure you have:
+
+- **Node.js 18+ and npm**
+- **PostgreSQL 14+ installed and running**
+- **Git installed**
+- **A terminal/command prompt**
+
+---
+
+## 📦 Step 1: Clone or Navigate to Project
+```bash
+# If you already have the project
+cd fueleu-maritime-platform
+
+# If cloning from repository
+git clone <your-repo-url>
+cd fueleu-maritime-platform
+```
+
+---
+
+## 🗄️ Step 2: Database Setup
+
+### Create Database
+```bash
+# Connect to PostgreSQL
+psql -U postgres
+
+# Create database
+CREATE DATABASE fueleu_maritime;
+
+# Grant privileges (optional)
+GRANT ALL PRIVILEGES ON DATABASE fueleu_maritime TO postgres;
+
+# Exit
+\q
+```
+
+### Run Migrations (Create Tables)
+```bash
+cd backend
+psql -U postgres -d fueleu_maritime -f src/infrastructure/db/schema.sql
+psql -U postgres -d fueleu_maritime -f src/infrastructure/db/auth-schema.sql
+
+# OR
+npm run db:migrate
+```
+
+### Seed Database
+```bash
+# Still in backend
+psql -U postgres -d fueleu_maritime -f src/infrastructure/db/seeds.sql
+
+# OR
+npm run db:seed
+```
+
+### Verify Database Setup
+```bash
+psql -U postgres -d fueleu_maritime
+\dt
+SELECT route_id, vessel_type, is_baseline FROM routes;
+SELECT email, role FROM users;
+\q
+```
+
+---
+
+## ⚙️ Step 3: Backend Setup
+
+### Install Dependencies
+```bash
+cd backend
+npm install
+```
+
+### Create Environment File
+```bash
+touch .env
+# OR (Windows)
+type nul > .env
+```
+
+### Configure Environment Variables
+In `backend/.env`:
+```bash
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=fueleu_maritime
+DB_USER=postgres
+DB_PASSWORD=your_postgres_password_here
+
+# JWT Configuration
+JWT_SECRET=your-minimum-32-character-random-secret-key-here
+JWT_EXPIRES_IN=24h
+REFRESH_TOKEN_EXPIRES_IN=7d
+
+# Logging
+LOG_LEVEL=debug
+```
+
+⚠️ Replace `your_postgres_password_here` with your actual PostgreSQL password.
+
+### Start Backend Server
+```bash
+npm run dev
+```
+
+Expected Output:
+```
+✓ Database connected successfully
+✓ Server running on port 3000
+✓ API available at http://localhost:3000/api
+```
+Keep this terminal open — the backend runs continuously.
+
+---
+
+## 🎨 Step 4: Frontend Setup
+
+### Open New Terminal
+Keep backend running.
+
+### Install Dependencies
+```bash
+cd frontend
+npm install
+npm install framer-motion
+```
+
+### (Optional) Create Environment File
+```bash
+touch .env
+# OR (Windows)
+type nul > .env
+```
+
+### Configure Frontend `.env`
+```bash
+VITE_API_URL=http://localhost:3000/api
+```
+
+### Start Frontend Server
+```bash
+npm run dev
+```
+
+Expected Output:
+```
+VITE v5.0.7  ready in 523 ms
+➜  Local:   http://localhost:5173/
+```
+
+---
+
+## 🌐 Step 5: Access the Application
+
+Open browser → `http://localhost:5173`
+
+### Login Options
+- **Quick Demo Access:** "Quick Demo Access" → logs in as guest  
+- **Admin Account:**  
+  `admin@fueleu.com / admin123`  
+- **Demo User Account:**  
+  `demo@fueleu.com / demo123`  
+- **Register New Account:** Sign up manually  
+
+---
+
+## 🎯 Step 6: Explore the Application
+
+### 1. Routes Tab
+View routes, filter by vessel/fuel/year, set baselines, inspect emissions.
+
+### 2. Compare Tab
+Compare actual vs target GHG intensity, see compliance %, view charts.
+
+### 3. Banking Tab
+Fetch compliance balance, bank surpluses, apply banked values, view history.
+
+### 4. Pooling Tab
+Create multi-ship pools, balance CBs, validate conservation automatically.
+
+---
+
+## 🛑 Stopping the Application
+
+**Frontend:**
+```bash
+Ctrl + C
+```
+
+**Backend:**
+```bash
+Ctrl + C
+```
+
+---
+
+## 🔄 Restarting
+
+**Backend:**
+```bash
+cd backend
+npm run dev
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm run dev
+```
+
+---
 
 ## 📊 Database Schema
 
 ## 🔗 API Endpoints
 
 ### Routes
-- `GET /api/routes` - List all routes
-- `POST /api/routes/:id/baseline` - Set baseline route
-- `GET /api/routes/comparison` - Compare routes vs targets
+- `GET /api/routes`
+- `POST /api/routes/:id/baseline`
+- `GET /api/routes/comparison`
 
 ### Compliance
-- `GET /api/compliance/cb?shipId={id}&year={year}` - Get compliance balance
-- `GET /api/compliance/adjusted-cb?shipId={id}&year={year}` - Get adjusted CB
+- `GET /api/compliance/cb`
+- `GET /api/compliance/adjusted-cb`
 
 ### Banking
-- `GET /api/banking/records?shipId={id}&year={year}` - Get bank records
-- `POST /api/banking/bank` - Bank surplus
-- `POST /api/banking/apply` - Apply banked surplus
+- `GET /api/banking/records`
+- `POST /api/banking/bank`
+- `POST /api/banking/apply`
 
 ### Pooling
-- `POST /api/pools` - Create pool
-
-## 🧪 Testing
-
-## 📐 Business Logic
-
-### Compliance Balance Formula
-
-
-### FuelEU Targets
-| Year | Target (gCO₂eq/MJ) | Reduction |
-|------|-------------------|-----------|
-| 2025 | 89.34 | 2% |
-| 2030 | 85.69 | 6% |
-| 2035 | 77.94 | 14.5% |
-| 2040 | 62.30 | 31% |
-| 2045 | 34.64 | 62% |
-| 2050 | 18.23 | 80% |
-
-### Pool Validation Rules
-1. Minimum 2 members
-2. Total CB must be conserved (before = after)
-3. Deficit ships cannot exit worse
-4. Surplus ships cannot exit negative
-5. Final pool sum ≥ 0
-
-## 🎨 UI Screenshots
-
-### Routes Tab
-View and manage maritime routes with filtering capabilities.
-
-### Compare Tab
-Visual comparison of actual emissions vs FuelEU targets with compliance status.
-
-### Banking Tab
-Interface for banking surplus and applying banked compliance balance.
-
-### Pooling Tab
-Create pooling arrangements with real-time validation feedback.
-
-## 📚 Technology Stack
-
-**Backend:**
-- Node.js + Express.js
-- TypeScript (strict mode)
-- PostgreSQL with `pg` driver
-- UUID for IDs
-- Helmet, CORS, Morgan for middleware
-
-**Frontend:**
-- React 18
-- TypeScript (strict mode)
-- TailwindCSS for styling
-- Axios for HTTP
-- Vite for build tooling
-
-**Testing:**
-- Jest (backend)
-- Vitest (frontend)
-- Supertest (integration)
-- React Testing Library
-
-## 🔐 Security Considerations
-
-- Helmet.js for HTTP security headers
-- CORS configuration for cross-origin requests
-- Prepared statements to prevent SQL injection
-- Input validation at controller level
-- TypeScript strict mode for type safety
-
-## 📈 Performance
-
-- Database connection pooling (max 20 connections)
-- Indexed queries on ship_id, year, baseline
-- Efficient FIFO deduction for banking
-- Lazy loading for large datasets
-
-## 🤝 AI-Assisted Development
-
-This project was developed using AI assistance (Claude 3.5). See `AGENT_WORKFLOW.md` for detailed documentation of:
-- Prompting strategies
-- Code generation process
-- Human validation steps
-- Time savings analysis
-
-## 📄 License
-
-MIT License - see LICENSE file for details
-
-## 👥 Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
-
-## 📞 Support
-
-For issues or questions:
-- Open an issue on GitHub
-- Contact: support@fueleu-platform.example
+- `POST /api/pools`
 
 ---
 
-**Built with ⚓ for maritime compliance**
+## 📚 Technology Stack
 
+**Backend:** Node.js, Express.js, PostgreSQL, TypeScript  
+**Frontend:** React 18, TailwindCSS, Vite  
+**Testing:** Jest, Vitest, Supertest  
 
+---
 
+## 🤝 AI-Assisted Development
+Developed with AI tools (Claude, Copilot). See `AGENT_WORKFLOW.md` for detailed AI usage logs.
 
+---
 
+## 📄 License
+MIT License
 
+---
 
-
-
-
+**Built with ⚓ for maritime sustainability**
